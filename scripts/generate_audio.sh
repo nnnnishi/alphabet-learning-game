@@ -6,21 +6,11 @@ SPEAKER=20  # もち子さん
 AUDIO_DIR="./audio"
 mkdir -p "$AUDIO_DIR"
 
-# アルファベットの読み方（日本語）
-declare -A LETTER_READINGS
-LETTER_READINGS=(
-  [A]="エー" [B]="ビー" [C]="シー" [D]="ディー" [E]="イー"
-  [F]="エフ" [G]="ジー" [H]="エイチ" [I]="アイ" [J]="ジェー"
-  [K]="ケー" [L]="エル" [M]="エム" [N]="エヌ" [O]="オー"
-  [P]="ピー" [Q]="キュー" [R]="アール" [S]="エス" [T]="ティー"
-  [U]="ユー" [V]="ブイ" [W]="ダブリュー" [X]="エックス" [Y]="ワイ"
-  [Z]="ゼット"
-)
-
 generate_wav() {
   local text="$1"
   local output="$2"
-  local query=$(curl -s -X POST "http://localhost:50021/audio_query?speaker=${SPEAKER}&text=$(python3 -c "import urllib.parse; print(urllib.parse.quote('${text}'))")")
+  local encoded=$(python3 -c "import urllib.parse; print(urllib.parse.quote('$text'))")
+  local query=$(curl -s -X POST "http://localhost:50021/audio_query?speaker=${SPEAKER}&text=${encoded}")
   if [ -z "$query" ]; then
     echo "ERROR: VOICEVOXに接続できません"
     exit 1
@@ -34,11 +24,43 @@ generate_wav() {
 
 echo "=== アルファベット音声生成 ==="
 
-# 各文字のwav生成
-for LETTER in "${!LETTER_READINGS[@]}"; do
-  READING="${LETTER_READINGS[$LETTER]}"
-  generate_wav "$READING" "$AUDIO_DIR/${LETTER,,}.wav"
-done
+# 文字: "letter reading" のペアをスペース区切りで定義
+LETTERS="
+A エー
+B ビー
+C シー
+D ディー
+E イー
+F エフ
+G ジー
+H エイチ
+I アイ
+J ジェー
+K ケー
+L エル
+M エム
+N エヌ
+O オー
+P ピー
+Q キュー
+R アール
+S エス
+T ティー
+U ユー
+V ブイ
+W ダブリュー
+X エックス
+Y ワイ
+Z ゼット
+"
+
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  letter=$(echo "$line" | awk '{print $1}')
+  reading=$(echo "$line" | awk '{$1=""; print $0}' | sed 's/^ //')
+  lower=$(echo "$letter" | tr '[:upper:]' '[:lower:]')
+  generate_wav "$reading" "$AUDIO_DIR/${lower}.wav"
+done <<< "$LETTERS"
 
 # 褒め言葉
 generate_wav "すごい！" "$AUDIO_DIR/sugoi.wav"
