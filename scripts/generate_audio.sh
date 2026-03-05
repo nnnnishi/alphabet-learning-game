@@ -20,18 +20,18 @@ generate_wav() {
 
 echo "=== アルファベット音声生成 (Samantha / en_US) ==="
 
-for LETTER in A B C D E F G H I J K L M N O P Q R S T U V W X Y Z; do
-  lower=$(echo "$LETTER" | tr '[:upper:]' '[:lower:]')
-  generate_wav "$LETTER" "$AUDIO_DIR/${lower}.wav"
+# 小文字で渡すことで "capital A" と読み上げられるのを防ぐ
+for LETTER in a b c d e f g h i j k l m n o p q r s t u v w x y z; do
+  generate_wav "$LETTER" "$AUDIO_DIR/${LETTER}.wav"
 done
 
-echo "=== 褒め言葉（日本語）==="
+echo "=== 褒め言葉（英語）==="
 
-generate_wav "すごい！" "$AUDIO_DIR/sugoi.wav" ja "Kyoko"
-generate_wav "やったね！" "$AUDIO_DIR/yattane.wav" ja "Kyoko"
-generate_wav "てんさい！" "$AUDIO_DIR/tensai.wav" ja "Kyoko"
-generate_wav "かっこいい！" "$AUDIO_DIR/kakkoii.wav" ja "Kyoko"
-generate_wav "すばらしい！" "$AUDIO_DIR/subarashii.wav" ja "Kyoko"
-generate_wav "やったね！おめでとう！" "$AUDIO_DIR/yattane_big.wav" ja "Kyoko"
+generate_wav "Great!" "$AUDIO_DIR/great.wav"
+generate_wav "Awesome!" "$AUDIO_DIR/awesome.wav"
+generate_wav "Excellent!" "$AUDIO_DIR/excellent.wav"
+generate_wav "Well done!" "$AUDIO_DIR/welldone.wav"
+generate_wav "Amazing!" "$AUDIO_DIR/amazing.wav"
+generate_wav "Great job! You got 5 in a row!" "$AUDIO_DIR/yattane_big.wav"
 
 echo "=== 完了 ==="
